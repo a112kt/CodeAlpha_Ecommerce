@@ -1,3 +1,4 @@
+const path = require("path");
 const swaggerJsdoc = require("swagger-jsdoc");
 
 const options = {
@@ -324,8 +325,7 @@ const options = {
       },
     },
   },
-  // Path to files that contain OpenAPI annotations
-  apis: ["./src/routes/*.js"],
+  apis: [path.join(__dirname, "..", "routes", "*.js").split(path.sep).join("/")],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
