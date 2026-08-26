@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
 
 const swaggerSpec = require("./config/swagger");
 
@@ -107,15 +106,45 @@ swaggerSpec.paths["/api/payments/webhook"] = {
   },
 };
 
-// Swagger UI
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, {
-    customSiteTitle: "CodeAlpha E-Commerce API Docs",
-    customCss: ".swagger-ui .topbar { display: none }",
-  })
-);
+// Swagger UI — served via CDN (works reliably on Vercel serverless)
+app.get("/api-docs", (req, res) => {
+  const specUrl = `${req.protocol}://${req.get("host")}/api-docs.json`;
+
+  res.status(200).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeAlpha E-Commerce API Docs</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    html { box-sizing: border-box; overflow-y: scroll; }
+    *, *:before, *:after { box-sizing: inherit; }
+    body { margin: 0; background: #fafafa; }
+    .swagger-ui .topbar { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    SwaggerUIBundle({
+      url: "${specUrl}",
+      dom_id: "#swagger-ui",
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset,
+      ],
+      layout: "StandaloneLayout",
+      docExpansion: "list",
+      filter: true,
+      tryItOutEnabled: true,
+    });
+  </script>
+</body>
+</html>`);
+});
 
 // Raw OpenAPI JSON
 app.get("/api-docs.json", (req, res) => {
