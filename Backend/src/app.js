@@ -108,8 +108,6 @@ swaggerSpec.paths["/api/payments/webhook"] = {
 
 // Swagger UI — served via CDN (works reliably on Vercel serverless)
 app.get("/api-docs", (req, res) => {
-  const specUrl = `${req.protocol}://${req.get("host")}/api-docs.json`;
-
   res.status(200).send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,9 +127,10 @@ app.get("/api-docs", (req, res) => {
   <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
   <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
   <script>
-    SwaggerUIBundle({
-      url: "${specUrl}",
+    window.ui = SwaggerUIBundle({
+      url: "/api-docs.json",
       dom_id: "#swagger-ui",
+      deepLinking: true,
       presets: [
         SwaggerUIBundle.presets.apis,
         SwaggerUIStandalonePreset,
